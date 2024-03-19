@@ -9,7 +9,7 @@ export interface LedgerHwWalletControllerState {
 }
 
 
-type StateKey = keyof AssetControllerState
+type StateKey = keyof LedgerHwWalletControllerState
 
 // -- State --------------------------------------------- //
 const state = proxy<LedgerHwWalletControllerState>({
@@ -19,3 +19,12 @@ const state = proxy<LedgerHwWalletControllerState>({
   tokenImages: {},
   currencyImages: {}
 })
+
+// -- Controller ---------------------------------------- //
+export const LedgerHwWalletController = {
+  state,
+
+  subscribeListeningDevices(callback: (value: LedgerHwWalletControllerState['scannedDevices']) => void) {
+    return sub(state.scannedDevices, () => callback(state.scannedDevices))
+  }
+}
