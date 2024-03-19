@@ -27,13 +27,13 @@
     "@web3modal/ethers": "4.1.1",
     "@web3modal/siwe": "4.1.1",
     "@web3modal/wagmi": "4.1.1",
+    "ethers": "6.9.0",
     "framer-motion": "10.17.9",
     "next": "14.0.4",
     "next-auth": "4.24.5",
     "react-icons": "4.12.0",
     "siwe": "2.1.4",
     "valtio": "1.11.2",
-    "ethers": "6.9.0",
     "viem": "2.7.13",
     "wagmi": "2.5.7"
   },
@@ -41,6 +41,8 @@
     "@aws-sdk/client-cloudwatch": "3.509.0",
     "@mailsac/api": "1.0.5",
     "@playwright/test": "1.40.1",
-    "dotenv": "16.3.1"
+    "@types/react": "18.2.67",
+    "dotenv": "16.3.1",
+    "typescript": "5.4.2"
   }
 }

@@ -47,6 +47,7 @@ export class W3mConnectView extends LitElement {
         ${this.walletConnectConnectorTemplate()} ${this.recentTemplate()}
         ${this.announcedTemplate()} ${this.injectedTemplate()} ${this.featuredTemplate()}
         ${this.customTemplate()} ${this.recommendedTemplate()} ${this.externalTemplate()}
+        ${this.hardwareWallets()}
         ${this.allWalletsTemplate()}
       </wui-flex>
       <w3m-legal-footer></w3m-legal-footer>
@@ -205,6 +206,27 @@ export class W3mConnectView extends LitElement {
     })
   }
 
+  private ledgerHardwareWalletTemplate() {
+
+    const count = ApiController.state.count
+    const featuredCount = ApiController.state.featured.length
+    const rawCount = count + featuredCount
+    const roundedCount = rawCount < 10 ? rawCount : Math.floor(rawCount / 10) * 10
+    const tagLabel = roundedCount < rawCount ? `${roundedCount}+` : `${roundedCount}`
+
+    return html`
+      <wui-list-wallet
+        name="Ledger Device"
+        walletIcon="allWallets"
+        showAllWallets
+        @click=${this.ledgerHwWallet.bind(this)}
+        tagLabel=${tagLabel}
+        tagVariant="shade"
+        data-testid="all-wallets"
+      ></wui-list-wallet>
+    `
+  }
+
   private allWalletsTemplate() {
     const connector = this.connectors.find(c => c.type === 'WALLET_CONNECT')
     const { allWallets } = OptionsController.state
@@ -300,6 +322,11 @@ export class W3mConnectView extends LitElement {
   private onAllWallets() {
     EventsController.sendEvent({ type: 'track', event: 'CLICK_ALL_WALLETS' })
     RouterController.push('AllWallets')
+  }
+
+  private ledgerHwWallet() {
+    //EventsController.sendEvent({ type: 'track', event: 'CLICK_LEDGER_WALLET' })
+    RouterController.push('LedgerHwWallet')
   }
 
   private onConnectWallet(wallet: WcWallet) {
