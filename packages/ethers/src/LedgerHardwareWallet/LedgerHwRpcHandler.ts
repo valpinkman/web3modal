@@ -4,13 +4,14 @@
 import type { RequestArguments } from 'packages/scaffold-utils/dist/types/src/EthersTypesUtil'
 import { createPublicClient, http } from 'viem'
 import { sepolia } from 'viem/chains'
+import { LedgerDeviceSdk, LedgerDeviceSdkBuilder } from '@ledgerhq/device-sdk-core'
 
 class LedgerHwRpcHandler {
   private _ledgerDeviceSdk: LedgerDeviceSdk
   private _walletClient
-  //Constructor(sdk: LedgerDeviceSdk) {
+
   constructor() {
-    this._ledgerDeviceSdk = new LedgerDeviceSdkBuilder()
+    this._ledgerDeviceSdk = new LedgerDeviceSdkBuilder().build()
     this._walletClient = createPublicClient({
       chain: sepolia,
       transport: http()
@@ -29,10 +30,9 @@ class LedgerHwRpcHandler {
     console.log('LedgerHwHandler', `Method Name => ${methodName}`)
     switch (methodName) {
       case 'eth_requestAccounts':
-        return true
+        return this._ledgerDeviceSdk.hackConnectAndDiscover()
       case 'eth_accounts':
-        // Handle eth_accounts
-        return ['0xC1128fd59C23941eb35C04A0907A02D663A5198B']
+        return this._ledgerDeviceSdk.hackGetEthAddress()
       case 'eth_sign':
         // Handle eth_sign
         Promise.reject('Need to implements with device SDK')

@@ -7,13 +7,10 @@ import { LedgerHwRpcHandler } from './LedgerHwRpcHandler'
 
 export class LedgerHwWalletProvider extends EventEmitter implements Provider {
   private _rpcHandler: LedgerHwRpcHandler
-  // Private _ledgerDeviceSdk: LedgerDeviceSdk
 
   constructor() {
     super()
-    // This._ledgerDeviceSdk = new LedgerDeviceSdk(config)
     this._rpcHandler = new LedgerHwRpcHandler()
-    // This._ledgerDeviceSdk
   }
 
   async request<T>(args: RequestArguments): Promise<T> {
