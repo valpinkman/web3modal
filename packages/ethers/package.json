@@ -43,6 +43,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@LedgerHQ/device-sdk": "file:./ledger-device-sdk",
     "@coinbase/wallet-sdk": "3.9.1",
     "@walletconnect/ethereum-provider": "2.11.1",
     "@web3modal/polyfills": "4.1.1",

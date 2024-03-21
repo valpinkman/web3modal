@@ -229,6 +229,19 @@ export class Web3Modal extends Web3ModalScaffold {
           }
         } else if (id === ConstantsUtil.EMAIL_CONNECTOR_ID) {
           this.setEmailProvider()
+        } else if (id === 'YOLO_ID') {
+          const LedgerHwWalletProvider = ethersConfig.ledgerHw
+
+          if (!LedgerHwWalletProvider) {
+            throw new Error(
+              'connectionControllerClient:connectLedgerHwWallet - connector is undefined'
+            )
+          }
+
+          // Should connect to device there
+          await ethersConfig.ledgerHw?.request({ method: 'eth_requestAccounts' })
+
+          this.setLedgerHwProvider(ethersConfig)
         }
       },
 
@@ -590,6 +603,23 @@ export class Web3Modal extends Web3ModalScaffold {
     }
   }
 
+  private async setLedgerHwProvider(config: ProviderType) {
+    // Why ? => window?.localStorage.setItem(EthersConstantsUtil.WALLET_ID, ConstantsUtil.COINBASE_CONNECTOR_ID)
+    const ledgerHwProvider = config.ledgerHw
+
+    if (ledgerHwProvider) {
+      const { address, chainId } = await EthersHelpersUtil.getUserInfo(ledgerHwProvider)
+      if (address && chainId) {
+        EthersStoreUtil.setChainId(chainId)
+        EthersStoreUtil.setProviderType('ledgerHwWallet')
+        EthersStoreUtil.setProvider(config.ledgerHw)
+        EthersStoreUtil.setIsConnected(true)
+        this.setAddress(address)
+        this.watchLedgerHarwareWallet(config)
+      }
+    }
+  }
+
   private async initSmartAccount(
     chainId: number
   ): Promise<{ isDeployed: boolean; address?: string }> {
@@ -741,6 +771,43 @@ export class Web3Modal extends Web3ModalScaffold {
 
   private watchCoinbase(config: ProviderType) {
     const provider = config.coinbase
+    const walletId = localStorage.getItem(EthersConstantsUtil.WALLET_ID)
+
+    function disconnectHandler() {
+      localStorage.removeItem(EthersConstantsUtil.WALLET_ID)
+      EthersStoreUtil.reset()
+
+      provider?.removeListener('disconnect', disconnectHandler)
+      provider?.removeListener('accountsChanged', accountsChangedHandler)
+      provider?.removeListener('chainChanged', chainChangedHandler)
+    }
+
+    function accountsChangedHandler(accounts: string[]) {
+      const currentAccount = accounts?.[0]
+      if (currentAccount) {
+        EthersStoreUtil.setAddress(getOriginalAddress(currentAccount) as Address)
+      } else {
+        localStorage.removeItem(EthersConstantsUtil.WALLET_ID)
+        EthersStoreUtil.reset()
+      }
+    }
+
+    function chainChangedHandler(chainId: string) {
+      if (chainId && walletId === ConstantsUtil.COINBASE_CONNECTOR_ID) {
+        const chain = Number(chainId)
+        EthersStoreUtil.setChainId(chain)
+      }
+    }
+
+    if (provider) {
+      provider.on('disconnect', disconnectHandler)
+      provider.on('accountsChanged', accountsChangedHandler)
+      provider.on('chainChanged', chainChangedHandler)
+    }
+  }
+
+  private watchLedgerHarwareWallet(config: ProviderType) {
+    const provider = config.ledgerHw
     const walletId = localStorage.getItem(EthersConstantsUtil.WALLET_ID)
 
     function disconnectHandler() {
@@ -1078,6 +1145,19 @@ export class Web3Modal extends Web3ModalScaffold {
         name: PresetsUtil.ConnectorNamesMap[ConstantsUtil.COINBASE_CONNECTOR_ID],
         type: 'EXTERNAL'
       })
+    }
+
+    if (config.ledgerHw) {
+      //ConstantsUtil.LEDGER_CONNECTOR_ID,
+      w3mConnectors.push({
+        id: 'YOLO_ID',
+        explorerId: PresetsUtil.ConnectorExplorerIds[ConstantsUtil.LEDGER_CONNECTOR_ID],
+        imageId: PresetsUtil.ConnectorImageIds[ConstantsUtil.LEDGER_CONNECTOR_ID],
+        imageUrl: this.options?.connectorImages?.[ConstantsUtil.LEDGER_CONNECTOR_ID],
+        name: 'Ledger Hardware Wallet',
+        type: 'EXTERNAL'
+      })
+      //PresetsUtil.ConnectorNamesMap[ConstantsUtil.LEDGER_CONNECTOR_ID],
     }
 
     this.setConnectors(w3mConnectors)
