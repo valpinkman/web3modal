@@ -4,14 +4,14 @@
 import type { RequestArguments } from 'packages/scaffold-utils/dist/types/src/EthersTypesUtil'
 import { createPublicClient, http } from 'viem'
 import { sepolia } from 'viem/chains'
-import { LedgerDeviceSdk, LedgerDeviceSdkBuilder } from '@ledgerhq/device-sdk-core'
+import { DeviceSdk, DeviceSdkBuilder } from '@ledgerhq/device-sdk-core'
 
 class LedgerHwRpcHandler {
-  private _ledgerDeviceSdk: LedgerDeviceSdk
+  private _ledgerDeviceSdk: DeviceSdk
   private _walletClient
 
   constructor() {
-    this._ledgerDeviceSdk = new LedgerDeviceSdkBuilder().build()
+    this._ledgerDeviceSdk = new DeviceSdkBuilder().build()
     this._walletClient = createPublicClient({
       chain: sepolia,
       transport: http()
